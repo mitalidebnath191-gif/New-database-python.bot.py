@@ -18,9 +18,11 @@ from concurrent.futures import ThreadPoolExecutor
 from faker import Faker
 from gtts import gTTS
 from phonenumbers import carrier, geocoder
+from flask import Flask
+from threading import Thread
 
 # =========================================
-# CONFIGURATION (No Proxy Needed for GitHub/Cloud)
+# CONFIGURATION
 # =========================================
 bot = telebot.TeleBot("8954334041:AAFO-qdDkVmknsh_e4SatjpDzn6bqj4swVA")
 
@@ -206,8 +208,18 @@ def process_command(cmd, data, chat_id, raw_text):
         return "❌ System Error or Request Timeout."
 
 # =========================================
-# MESSAGE HANDLER & ANTI-CRASH
+# WEB SERVER & MESSAGE HANDLER
 # =========================================
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return "Bot is running perfectly!"
+
+def run_server():
+    port = int(os.environ.get("PORT", 8080))
+    app.run(host="0.0.0.0", port=port)
+
 @bot.message_handler(func=lambda m: True)
 def handle_msg(m):
     text = m.text.strip()
@@ -237,10 +249,12 @@ def handle_msg(m):
     except Exception:
         bot.edit_message_text("❌ Error sending message.", m.chat.id, wait_msg.message_id)
 
-print("✅ Bot is ONLINE and running on Cloud Server...")
-while True:
-    try:
-        bot.polling(none_stop=True)
-    except Exception:
-        time.sleep(3)
-  
+if __name__ == "__main__":
+    server_thread = Thread(target=run_server)
+    server_thread.start()
+    print("✅ Web Server and Bot are ONLINE...")
+    while True:
+        try:
+            bot.polling(none_stop=True)
+        except Exception:
+            time.sleep(3)
