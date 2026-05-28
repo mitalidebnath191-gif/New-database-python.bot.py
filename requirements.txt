@@ -1,0 +1,5 @@
+pyTelegramBotAPI==4.14.0
+requests==2.31.0
+Faker==22.5.1
+gTTS==2.5.1
+phonenumbers==8.13.29
